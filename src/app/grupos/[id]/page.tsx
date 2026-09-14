@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, use } from 'react';
 import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Reveal from "@/components/Reveal";
 import DownloadPlaneacionPDF from "@/components/DownloadPlaneacionPDF";
 import StudentAlbum from "@/components/StudentAlbum";
@@ -889,6 +890,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
   const curData = CURRICULUM_DATA[id];
 
   return (
+    <ErrorBoundary label="Grupo Escolar">
     <main className="min-h-screen bg-mural-escolar pt-24 pb-20">
       <div className="absolute inset-0 bg-white/90 backdrop-blur-[1px] z-0"></div>
 
@@ -2052,5 +2054,6 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
       </div>
       <StudentAlbum />
     </main>
+    </ErrorBoundary>
   );
 }

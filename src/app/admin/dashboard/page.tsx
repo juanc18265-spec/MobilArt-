@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Reveal from "@/components/Reveal";
 import { io } from "socket.io-client";
 import { getAudioContext } from '@/lib/audioUtils';
@@ -80,19 +81,39 @@ export default function AdminDashboard() {
   // Cargar datos del dashboard cuando se autoriza
   useEffect(() => {
     if (isAuthorized === true) {
-      fetch('/api/grupos?t=' + Date.now()).then(r => r.json()).then(setGrupos);
-      fetch('/api/sugerencias?t=' + Date.now()).then(r => r.json()).then(setSugerencias);
-      fetch('/api/evaluaciones?t=' + Date.now()).then(r => r.json()).then(setEvaluaciones);
-      fetch('/api/landscape-videos?t=' + Date.now()).then(r => r.json()).then(setLandscapeVideos);
-      fetch('/api/encuestas?t=' + Date.now()).then(r => r.json()).then(setSurveyHistory);
-      fetch('/api/proyecto-joan?t=' + Date.now()).then(r => r.json()).then(data => { if (data.success) setProyectoJoanUrl(data.url); });
+      const safeFetch = async (url: string, setter: (data: any) => void) => {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) {
+            console.error('API error:', res.status, await res.text());
+            return;
+          }
+          const data = await res.json();
+          setter(data);
+        } catch (err) {
+          console.error('Error fetching ' + url, err);
+        }
+      };
+      
+      safeFetch('/api/grupos?t=' + Date.now(), setGrupos);
+      safeFetch('/api/sugerencias?t=' + Date.now(), setSugerencias);
+      safeFetch('/api/evaluaciones?t=' + Date.now(), setEvaluaciones);
+      safeFetch('/api/landscape-videos?t=' + Date.now(), setLandscapeVideos);
+      safeFetch('/api/encuestas?t=' + Date.now(), setSurveyHistory);
+      safeFetch('/api/proyecto-joan?t=' + Date.now(), (data: any) => { if (data.success) setProyectoJoanUrl(data.url); });
     }
   }, [isAuthorized]);
 
   // Verificar auth e inicializar sockets al montar
   useEffect(() => {
     fetch('/api/admin/verify?t=' + Date.now())
-      .then(res => res.json())
+      .then(async res => {
+        if (!res.ok) {
+          console.error('API error:', res.status, await res.text());
+          throw new Error('API error');
+        }
+        return res.json();
+      })
       .then(data => {
         setIsAuthorized(data.authorized);
       })
@@ -147,7 +168,7 @@ export default function AdminDashboard() {
 
   // Temporizador para el panel de administración
   useEffect(() => {
-    if (!liveSurvey || adminSecondsLeft <= 0) return;
+    if (!liveSurvey) return;
     const interval = setInterval(() => {
       setAdminSecondsLeft(prev => {
         if (prev <= 1) {
@@ -159,7 +180,7 @@ export default function AdminDashboard() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [liveSurvey, adminSecondsLeft]);
+  }, [liveSurvey]);
 
   const playChimeSound = (success: boolean) => {
     if (typeof window === 'undefined') return;
@@ -216,6 +237,13 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: usernameInput, password: passwordInput })
       });
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
+        setLoginError("Error del servidor al iniciar sesión.");
+        playChimeSound(false);
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setIsAuthorized(true);
@@ -248,19 +276,31 @@ export default function AdminDashboard() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, ...data })
     });
-    if (res.ok) {
-      const updated = await res.json();
-      setGrupos(prev => ({ ...prev, [id]: updated.group }));
-      
-      // Emit socket event if triviarteEnabled was changed
-      if (data.triviarteEnabled !== undefined && socket) {
-        socket.emit('toggle_evaluacion', { grupoId: id, enabled: data.triviarteEnabled });
-        // Refrescar datos del servidor para mantener sincronización
-        fetch('/api/grupos?t=' + Date.now()).then(r => r.json()).then(setGrupos);
-        alert(data.triviarteEnabled ? "🟢 Evaluación ABIERTA para los estudiantes" : "🔒 Evaluación CERRADA para los estudiantes");
-      } else {
-        alert("Grupo actualizado exitosamente");
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('API error:', res.status, text);
+      alert("Error al actualizar grupo");
+      return;
+    }
+    const updated = await res.json();
+    setGrupos(prev => ({ ...prev, [id]: updated.group }));
+    
+    // Emit socket event if triviarteEnabled was changed
+    if (data.triviarteEnabled !== undefined && socket) {
+      socket.emit('toggle_evaluacion', { grupoId: id, enabled: data.triviarteEnabled });
+      // Refrescar datos del servidor para mantener sincronización
+      try {
+        const r = await fetch('/api/grupos?t=' + Date.now());
+        if (r.ok) {
+          const fresh = await r.json();
+          setGrupos(fresh);
+        }
+      } catch (err) {
+        console.error(err);
       }
+      alert(data.triviarteEnabled ? "🟢 Evaluación ABIERTA para los estudiantes" : "🔒 Evaluación CERRADA para los estudiantes");
+    } else {
+      alert("Grupo actualizado exitosamente");
     }
   };
 
@@ -389,14 +429,16 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, archived: !currentlyArchived })
       });
-      if (res.ok) {
-        const result = await res.json();
-        setSugerencias(prev => prev.map(s => s.id === id ? result.sugerencia : s));
-        playChimeSound(true);
-      } else {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
         alert("Error al archivar la sugerencia.");
         playChimeSound(false);
+        return;
       }
+      const result = await res.json();
+      setSugerencias(prev => prev.map(s => s.id === id ? result.sugerencia : s));
+      playChimeSound(true);
     } catch (e) {
       alert("Error de red al actualizar la sugerencia.");
     }
@@ -408,13 +450,15 @@ export default function AdminDashboard() {
       const res = await fetch(`/api/sugerencias?id=${id}`, {
         method: 'DELETE'
       });
-      if (res.ok) {
-        setSugerencias(prev => prev.filter(s => s.id !== id));
-        playChimeSound(true);
-      } else {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
         alert("Error al eliminar la sugerencia.");
         playChimeSound(false);
+        return;
       }
+      setSugerencias(prev => prev.filter(s => s.id !== id));
+      playChimeSound(true);
     } catch (e) {
       alert("Error de red al eliminar la sugerencia.");
     }
@@ -427,14 +471,16 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, archived: !currentlyArchived })
       });
-      if (res.ok) {
-        const result = await res.json();
-        setEvaluaciones(prev => prev.map(e => e.id === id ? result.evaluacion : e));
-        playChimeSound(true);
-      } else {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
         alert("Error al archivar la calificación.");
         playChimeSound(false);
+        return;
       }
+      const result = await res.json();
+      setEvaluaciones(prev => prev.map(e => e.id === id ? result.evaluacion : e));
+      playChimeSound(true);
     } catch (e) {
       alert("Error de red al actualizar la calificación.");
     }
@@ -446,13 +492,15 @@ export default function AdminDashboard() {
       const res = await fetch(`/api/evaluaciones?id=${id}`, {
         method: 'DELETE'
       });
-      if (res.ok) {
-        setEvaluaciones(prev => prev.filter(e => e.id !== id));
-        playChimeSound(true);
-      } else {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
         alert("Error al eliminar la calificación.");
         playChimeSound(false);
+        return;
       }
+      setEvaluaciones(prev => prev.filter(e => e.id !== id));
+      playChimeSound(true);
     } catch (e) {
       alert("Error de red al eliminar la calificación.");
     }
@@ -465,15 +513,17 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ landscapeId, videoUrl })
       });
-      if (res.ok) {
-        const result = await res.json();
-        setLandscapeVideos(result.landscapeVideos);
-        playChimeSound(true);
-        alert("¡Video del paisaje actualizado exitosamente!");
-      } else {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
         alert("Error al actualizar el video del paisaje.");
         playChimeSound(false);
+        return;
       }
+      const result = await res.json();
+      setLandscapeVideos(result.landscapeVideos);
+      playChimeSound(true);
+      alert("¡Video del paisaje actualizado exitosamente!");
     } catch (e) {
       alert("Error de red al actualizar el video.");
       playChimeSound(false);
@@ -488,14 +538,16 @@ export default function AdminDashboard() {
       const res = await fetch('/api/reset-progress', {
         method: 'POST'
       });
-      if (res.ok) {
-        const result = await res.json();
-        alert(`✓ ¡Éxito! Progreso escolar restablecido a cero de forma remota.\nNuevo Token de Sincronización: ${result.resetToken}\n\nLos navegadores de los alumnos se limpiarán automáticamente.`);
-        playChimeSound(true);
-      } else {
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('API error:', res.status, text);
         alert("Error al intentar restablecer el progreso.");
         playChimeSound(false);
+        return;
       }
+      const result = await res.json();
+      alert(`✓ ¡Éxito! Progreso escolar restablecido a cero de forma remota.\nNuevo Token de Sincronización: ${result.resetToken}\n\nLos navegadores de los alumnos se limpiarán automáticamente.`);
+      playChimeSound(true);
     } catch (e) {
       alert("Error de red al conectar con el servidor.");
     } finally {
@@ -742,6 +794,7 @@ export default function AdminDashboard() {
 
   // AUTHORIZED FULL ADMIN DASHBOARD SCREEN
   return (
+    <ErrorBoundary label="Panel de Administración">
     <main className="min-h-screen px-4 pt-24 pb-28 relative bg-[#F8FAFC]">
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_top_right,_rgba(56,189,248,0.08)_0%,_transparent_60%)] pointer-events-none" />
       
@@ -1937,5 +1990,6 @@ export default function AdminDashboard() {
 
       </div>
     </main>
+    </ErrorBoundary>
   );
 }

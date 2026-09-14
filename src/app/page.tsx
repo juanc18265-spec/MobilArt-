@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import Link from "next/link";
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Reveal from "@/components/Reveal";
 import DotMapCard from "@/components/DotMapCard";
 import MazeCard from "@/components/MazeCard";
@@ -197,7 +198,7 @@ export default function Home() {
 
   // Controlar la cuenta regresiva del temporizador
   useEffect(() => {
-    if (!activeSurvey || secondsLeft <= 0) return;
+    if (!activeSurvey) return;
 
     const interval = setInterval(() => {
       setSecondsLeft((prev) => {
@@ -212,7 +213,7 @@ export default function Home() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [activeSurvey, secondsLeft]);
+  }, [activeSurvey]);
 
   const handleSubmitVote = (vote: string) => {
     if (socket && activeSurvey) {
@@ -248,6 +249,7 @@ export default function Home() {
   };
 
   return (
+    <ErrorBoundary label="Página Principal">
     <main className="relative bg-[#FFFFFF] overflow-hidden">
       
       {/* ═══ HERO ARTE VIVO ═══ */}
@@ -738,5 +740,6 @@ export default function Home() {
         }
       `}</style>
     </main>
+    </ErrorBoundary>
   );
 }
