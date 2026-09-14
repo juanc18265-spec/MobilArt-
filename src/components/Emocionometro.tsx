@@ -251,6 +251,19 @@ export default function Emocionometro() {
     }
   }, [emocionActiva]);
 
+  // Prevent scrolling while drawing on canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const preventScroll = (e: TouchEvent) => e.preventDefault();
+    canvas.addEventListener("touchstart", preventScroll, { passive: false });
+    canvas.addEventListener("touchmove", preventScroll, { passive: false });
+    return () => {
+      canvas.removeEventListener("touchstart", preventScroll);
+      canvas.removeEventListener("touchmove", preventScroll);
+    };
+  }, [activeTab]);
+
   // Set up canvas size exactly ONCE per tab change to prevent wipeouts
   useEffect(() => {
     if (activeTab === "canvas" && canvasRef.current) {

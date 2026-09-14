@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 /* ═══ MEMORIA VIVA ═══ */
@@ -26,6 +26,7 @@ export default function MemoryPage() {
   const [matches, setMatches] = useState(0);
   const [moves, setMoves] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
+  const isLockedRef = useRef(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [time, setTime] = useState(0);
@@ -60,6 +61,7 @@ export default function MemoryPage() {
     setMoves(0);
     setTime(0);
     setIsLocked(false);
+    isLockedRef.current = false;
     setIsGameOver(false);
   };
 
@@ -68,6 +70,7 @@ export default function MemoryPage() {
   };
 
   const handleCardClick = (index: number) => {
+    if (isLockedRef.current) return;
     if (isLocked) return;
     if (cards[index].isFlipped || cards[index].isMatched) return;
 
@@ -79,6 +82,7 @@ export default function MemoryPage() {
     setFlippedCards(newFlipped);
 
     if (newFlipped.length === 2) {
+      isLockedRef.current = true;
       setIsLocked(true);
       setMoves((m) => m + 1);
 
@@ -89,6 +93,7 @@ export default function MemoryPage() {
         newCards[i2].isMatched = true;
         setCards(newCards);
         setFlippedCards([]);
+        isLockedRef.current = false;
         setIsLocked(false);
         
         const newMatches = matches + 1;
@@ -104,6 +109,7 @@ export default function MemoryPage() {
           resetCards[i2].isFlipped = false;
           setCards(resetCards);
           setFlippedCards([]);
+          isLockedRef.current = false;
           setIsLocked(false);
         }, 1000);
       }

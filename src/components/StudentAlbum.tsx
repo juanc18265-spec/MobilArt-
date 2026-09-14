@@ -19,26 +19,36 @@ export default function StudentAlbum() {
   // Sync state from localStorage when opened or mounted
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedName = localStorage.getItem("mobilart_student_name") || localStorage.getItem("movi" + "lart_student_name") || "";
+      let storedName = "";
+      try {
+        storedName = localStorage.getItem("mobilart_student_name") || localStorage.getItem("movi" + "lart_student_name") || "";
+      } catch {}
       setStudentName(storedName);
       
-      const storedPoints = Number(localStorage.getItem("mobilart_artipuntos") || localStorage.getItem("movi" + "lart_artipuntos") || "0");
+      let storedPoints = 0;
+      try {
+        storedPoints = Number(localStorage.getItem("mobilart_artipuntos") || localStorage.getItem("movi" + "lart_artipuntos") || "0");
+      } catch {}
       setPoints(storedPoints);
 
-      setBadges({
-        trivia: localStorage.getItem("mobilart_completed_trivia") === "true" || localStorage.getItem("movi" + "lart_completed_trivia") === "true",
-        colormix: localStorage.getItem("mobilart_completed_colormix") === "true" || localStorage.getItem("movi" + "lart_completed_colormix") === "true",
-        puzzle: localStorage.getItem("mobilart_completed_puzzle") === "true" || localStorage.getItem("movi" + "lart_completed_puzzle") === "true",
-        matching: localStorage.getItem("mobilart_completed_matching") === "true" || localStorage.getItem("movi" + "lart_completed_matching") === "true",
-        rhythm: localStorage.getItem("mobilart_completed_rhythm") === "true" || localStorage.getItem("movi" + "lart_completed_rhythm") === "true",
-        roulette: localStorage.getItem("mobilart_completed_roulette") === "true" || localStorage.getItem("movi" + "lart_completed_roulette") === "true",
-      });
+      let badgesState = { trivia: false, colormix: false, puzzle: false, matching: false, rhythm: false, roulette: false };
+      try {
+        badgesState = {
+          trivia: localStorage.getItem("mobilart_completed_trivia") === "true" || localStorage.getItem("movi" + "lart_completed_trivia") === "true",
+          colormix: localStorage.getItem("mobilart_completed_colormix") === "true" || localStorage.getItem("movi" + "lart_completed_colormix") === "true",
+          puzzle: localStorage.getItem("mobilart_completed_puzzle") === "true" || localStorage.getItem("movi" + "lart_completed_puzzle") === "true",
+          matching: localStorage.getItem("mobilart_completed_matching") === "true" || localStorage.getItem("movi" + "lart_completed_matching") === "true",
+          rhythm: localStorage.getItem("mobilart_completed_rhythm") === "true" || localStorage.getItem("movi" + "lart_completed_rhythm") === "true",
+          roulette: localStorage.getItem("mobilart_completed_roulette") === "true" || localStorage.getItem("movi" + "lart_completed_roulette") === "true",
+        };
+      } catch {}
+      setBadges(badgesState);
     }
   }, [isOpen]);
 
   const saveName = (name: string) => {
     setStudentName(name);
-    localStorage.setItem("mobilart_student_name", name);
+    try { localStorage.setItem("mobilart_student_name", name); } catch {}
   };
 
   const playBadgeChime = () => {

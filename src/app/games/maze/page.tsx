@@ -62,6 +62,7 @@ export default function MazeGame() {
 
   useEffect(()=>{
     const h=(e:KeyboardEvent)=>{
+      if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) { e.preventDefault(); }
       switch(e.key){case"ArrowUp":case"w":move(0,-1);break;case"ArrowDown":case"s":move(0,1);break;case"ArrowLeft":case"a":move(-1,0);break;case"ArrowRight":case"d":move(1,0);break;}
     };
     window.addEventListener("keydown",h); return()=>window.removeEventListener("keydown",h);

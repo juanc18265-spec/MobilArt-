@@ -746,46 +746,48 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
 
   // Polling periódico para verificar el estado de evaluación (fallback robusto sin WebSocket)
   useEffect(() => {
-    let pollingInterval: ReturnType<typeof setInterval> | null = null;
     let lastKnownState: boolean | undefined = undefined;
+    const controller = new AbortController();
 
-    const checkEvaluacionState = () => {
-      fetch('/api/grupos?t=' + Date.now())
-        .then(res => res.json())
-        .then(db => {
-          if (db[id]) {
-            const newEnabled = db[id].triviarteEnabled === true;
-            // Si el estado cambió, actualizar y notificar
-            if (lastKnownState !== undefined && lastKnownState !== newEnabled) {
-              setData(prev => {
-                if (!prev) return null;
-                return { ...prev, triviarteEnabled: newEnabled };
-              });
-              if (newEnabled) {
-                playSound('triumph');
-                alert("🟢 ¡La evaluación ha sido abierta por el docente! Ya puedes iniciar.");
-              } else {
-                playSound('incorrect');
-                alert("🔒 La evaluación ha sido cerrada por el docente.");
-              }
+    const checkEvaluacionState = async () => {
+      try {
+        const res = await fetch('/api/grupos?t=' + Date.now(), { signal: controller.signal });
+        const db = await res.json();
+        if (db[id]) {
+          const newEnabled = db[id].triviarteEnabled === true;
+          // Si el estado cambió, actualizar y notificar
+          if (lastKnownState !== undefined && lastKnownState !== newEnabled) {
+            setData(prev => {
+              if (!prev) return null;
+              return { ...prev, triviarteEnabled: newEnabled };
+            });
+            if (newEnabled) {
+              playSound('triumph');
+              alert("🟢 ¡La evaluación ha sido abierta por el docente! Ya puedes iniciar.");
             } else {
-              // Actualizar silenciosamente sin alerta
-              setData(prev => {
-                if (!prev) return null;
-                return { ...prev, triviarteEnabled: newEnabled };
-              });
+              playSound('incorrect');
+              alert("🔒 La evaluación ha sido cerrada por el docente.");
             }
-            lastKnownState = newEnabled;
+          } else {
+            // Actualizar silenciosamente sin alerta
+            setData(prev => {
+              if (!prev) return null;
+              return { ...prev, triviarteEnabled: newEnabled };
+            });
           }
-        })
-        .catch(err => console.warn("Error en polling de evaluación:", err));
+          lastKnownState = newEnabled;
+        }
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') console.warn("Error en polling de evaluación:", err);
+      }
     };
 
     // Polling cada 5 segundos
-    pollingInterval = setInterval(checkEvaluacionState, 5000);
+    const pollingInterval = setInterval(checkEvaluacionState, 5000);
 
     return () => {
-      if (pollingInterval) clearInterval(pollingInterval);
+      controller.abort();
+      clearInterval(pollingInterval);
     };
   }, [id]);
 

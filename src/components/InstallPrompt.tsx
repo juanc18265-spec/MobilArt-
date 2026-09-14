@@ -29,7 +29,8 @@ export default function InstallPrompt() {
       // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
       // Show the install promotion custom banner after a 3 second delay
-      const hasClosedPrompt = localStorage.getItem("mobilart_prompt_dismissed");
+      let hasClosedPrompt: string | null = null;
+      try { hasClosedPrompt = localStorage.getItem("mobilart_prompt_dismissed"); } catch {}
       if (!hasClosedPrompt) {
         setTimeout(() => {
           setShowPrompt(true);
@@ -70,7 +71,7 @@ export default function InstallPrompt() {
 
   const handleDismissClick = () => {
     // Save state so we don't annoy the user on every reload
-    localStorage.setItem("mobilart_prompt_dismissed", "true");
+    try { localStorage.setItem("mobilart_prompt_dismissed", "true"); } catch {}
     setShowPrompt(false);
   };
 

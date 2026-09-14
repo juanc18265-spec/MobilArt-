@@ -151,6 +151,16 @@ class LandscapeSynth {
     
     osc.start();
     osc.stop(now + 0.4);
+    
+    this.nodes.push(osc, gain);
+    osc.onended = () => {
+      const idx = this.nodes.indexOf(osc);
+      if (idx > -1) this.nodes.splice(idx, 1);
+      const gIdx = this.nodes.indexOf(gain);
+      if (gIdx > -1) this.nodes.splice(gIdx, 1);
+      try { osc.disconnect(); } catch {}
+      try { gain.disconnect(); } catch {}
+    };
   }
 
   // 2. River Flowing (Caño Cristales)
@@ -264,6 +274,16 @@ class LandscapeSynth {
         gain.connect(mainGain);
         osc.start();
         osc.stop(now + 0.25);
+
+        this.nodes.push(osc, gain);
+        osc.onended = () => {
+          const idx = this.nodes.indexOf(osc);
+          if (idx > -1) this.nodes.splice(idx, 1);
+          const gIdx = this.nodes.indexOf(gain);
+          if (gIdx > -1) this.nodes.splice(gIdx, 1);
+          try { osc.disconnect(); } catch {}
+          try { gain.disconnect(); } catch {}
+        };
       }
 
       // Melodic tone trigger
@@ -282,6 +302,16 @@ class LandscapeSynth {
         gainMel.connect(mainGain);
         oscMel.start();
         oscMel.stop(now + 0.75);
+
+        this.nodes.push(oscMel, gainMel);
+        oscMel.onended = () => {
+          const idx = this.nodes.indexOf(oscMel);
+          if (idx > -1) this.nodes.splice(idx, 1);
+          const gIdx = this.nodes.indexOf(gainMel);
+          if (gIdx > -1) this.nodes.splice(gIdx, 1);
+          try { oscMel.disconnect(); } catch {}
+          try { gainMel.disconnect(); } catch {}
+        };
       }
 
       beatIdx = (beatIdx + 1) % 4;
@@ -326,6 +356,23 @@ class LandscapeSynth {
       
       osc.stop(now + 2.8);
       oscHarmonic.stop(now + 2.8);
+
+      this.nodes.push(osc, oscHarmonic, gain);
+      
+      osc.onended = () => {
+        const idx = this.nodes.indexOf(osc);
+        if (idx > -1) this.nodes.splice(idx, 1);
+        const gIdx = this.nodes.indexOf(gain);
+        if (gIdx > -1) this.nodes.splice(gIdx, 1);
+        try { osc.disconnect(); } catch {}
+        try { gain.disconnect(); } catch {}
+      };
+      
+      oscHarmonic.onended = () => {
+        const idx = this.nodes.indexOf(oscHarmonic);
+        if (idx > -1) this.nodes.splice(idx, 1);
+        try { oscHarmonic.disconnect(); } catch {}
+      };
     }, 2800);
   }
 }

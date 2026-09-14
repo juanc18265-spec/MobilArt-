@@ -114,6 +114,19 @@ export default function CatcherPage() {
     };
   }, [isStarted, isGameOver, score]);
 
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (spawnIntervalRef.current) {
+          clearInterval(spawnIntervalRef.current);
+          spawnIntervalRef.current = undefined;
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   const endGame = () => {
     setIsGameOver(true);
     cancelAnimationFrame(animationIdRef.current);

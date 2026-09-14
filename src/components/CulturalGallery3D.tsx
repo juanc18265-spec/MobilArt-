@@ -291,17 +291,20 @@ export default function CulturalGallery3D() {
 
   if (!mounted) return null;
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const particleCount = isMobile ? 100 : 300;
+
   return (
     <div className="w-full h-screen bg-[#050510]">
       <Canvas
-        shadows
+        shadows={!isMobile}
         camera={{ position: [0, 1, 5.5], fov: 50 }}
         gl={{
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.4,
         }}
-        dpr={[1, 1.5]}
+        dpr={[1, isMobile ? 1 : 1.5]}
       >
         <fog attach="fog" args={["#050510", 6, 20]} />
 
@@ -313,17 +316,17 @@ export default function CulturalGallery3D() {
           penumbra={0.8}
           intensity={3}
           color="#ffe4b5"
-          castShadow
+          castShadow={!isMobile}
         />
 
         {/* Colombian flag accent lights */}
-        <pointLight position={[-6, 4, -2]} intensity={1.2} color="#ffd700" distance={15} />
-        <pointLight position={[6, 4, -2]} intensity={0.8} color="#003893" distance={15} />
-        <pointLight position={[0, 5, -5]} intensity={0.6} color="#ce1126" distance={12} />
+        <pointLight position={[-6, 4, -2]} intensity={isMobile ? 0.6 : 1.2} color="#ffd700" distance={15} />
+        <pointLight position={[6, 4, -2]} intensity={isMobile ? 0.4 : 0.8} color="#003893" distance={15} />
+        {!isMobile && <pointLight position={[0, 5, -5]} intensity={0.6} color="#ce1126" distance={12} />}
 
         {/* Rim lights */}
-        <pointLight position={[-4, 0.5, 5]} intensity={0.4} color="#4ecdc4" distance={10} />
-        <pointLight position={[4, 0.5, 5]} intensity={0.4} color="#ff6b9d" distance={10} />
+        {!isMobile && <pointLight position={[-4, 0.5, 5]} intensity={0.4} color="#4ecdc4" distance={10} />}
+        {!isMobile && <pointLight position={[4, 0.5, 5]} intensity={0.4} color="#ff6b9d" distance={10} />}
 
         {/* Gallery cards */}
         {GALLERY_ITEMS.map((item, i) => (
@@ -331,7 +334,7 @@ export default function CulturalGallery3D() {
         ))}
 
         {/* Magic particles */}
-        <MagicParticles count={300} />
+        <MagicParticles count={particleCount} />
 
         {/* Dark floor */}
         <DarkFloor />
