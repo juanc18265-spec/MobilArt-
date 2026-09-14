@@ -14,6 +14,7 @@ import DigitalWellbeing from "@/components/DigitalWellbeing";
 import StudentAlbum from "@/components/StudentAlbum";
 import MemoryCard from "@/components/MemoryCard";
 import BoardCard from "@/components/BoardCard";
+import { getAudioContext } from '@/lib/audioUtils';
 
 /* ═══════════════════════════════════════════════
    Datos de la galería Colombia Viva (2D ligera)
@@ -150,9 +151,8 @@ export default function Home() {
       
       // Reproducir sonido de alerta
       try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioContextClass) {
-          const ctx = new AudioContextClass();
+        const ctx = getAudioContext();
+        if (ctx) {
           const now = ctx.currentTime;
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
@@ -222,9 +222,8 @@ export default function Home() {
       
       // Sonido dulce de éxito
       try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-        if (AudioContextClass) {
-          const ctx = new AudioContextClass();
+        const ctx = getAudioContext();
+        if (ctx) {
           const now = ctx.currentTime;
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();

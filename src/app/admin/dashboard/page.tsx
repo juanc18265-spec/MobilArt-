@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { io } from "socket.io-client";
+import { getAudioContext } from '@/lib/audioUtils';
 
 interface Resource { id: string; url: string; title?: string; }
 interface Ficha { id: string; url: string; title: string; }
@@ -163,9 +164,7 @@ export default function AdminDashboard() {
   const playChimeSound = (success: boolean) => {
     if (typeof window === 'undefined') return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+      const ctx = getAudioContext();
       const now = ctx.currentTime;
       if (success) {
         // Double sweet note

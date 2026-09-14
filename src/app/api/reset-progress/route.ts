@@ -5,6 +5,9 @@ import { getAdminSession } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const session = await getAdminSession();
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+
   const { data, error } = await supabaseAdmin
     .from('app_settings')
     .select('value')

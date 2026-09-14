@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mobilart-local-fallback-secret-key-2026';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'mobilart-local-fallback-secret-key-2026';
 
 export interface AdminSession {
   username: string;
@@ -36,7 +36,9 @@ export function verifyToken(token: string): AdminSession | null {
       .update(`${header}.${data}`)
       .digest('base64url');
       
-    if (signature !== expectedSignature) return null;
+    const sigBuf = Buffer.from(signature, 'base64url');
+    const expectedBuf = Buffer.from(expectedSignature, 'base64url');
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) return null;
     
     const payload: AdminSession = JSON.parse(
       Buffer.from(data, 'base64url').toString('utf8')

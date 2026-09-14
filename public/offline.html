@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MobilArt — Sin Conexión</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      font-family: system-ui, -apple-system, sans-serif;
+      color: #e2e8f0;
+      padding: 24px;
+    }
+    .card {
+      text-align: center;
+      max-width: 400px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(100, 116, 139, 0.3);
+      border-radius: 20px;
+      padding: 48px 32px;
+      backdrop-filter: blur(12px);
+    }
+    .icon { font-size: 64px; margin-bottom: 16px; }
+    h1 { font-size: 24px; margin-bottom: 12px; color: #38bdf8; }
+    p { font-size: 16px; line-height: 1.6; color: #94a3b8; margin-bottom: 24px; }
+    button {
+      background: linear-gradient(135deg, #10b981, #14b8a6);
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover { transform: scale(1.05); }
+    button:active { transform: scale(0.95); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🕊️</div>
+    <h1>Sin Conexión a Internet</h1>
+    <p>No tienes conexión en este momento. Verifica tu WiFi o datos móviles e intenta de nuevo.</p>
+    <button onclick="location.reload()">🔄 Reintentar</button>
+  </div>
+</body>
+</html>

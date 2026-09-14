@@ -29,6 +29,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await getAdminSession();
+    if (!session) return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+
     const body = await request.json();
     if (!body.studentName || !body.grupoId) {
       return NextResponse.json({ success: false, error: 'Nombre y grupoId requeridos' }, { status: 400 });

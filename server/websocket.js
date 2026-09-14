@@ -1,5 +1,45 @@
 const { Server } = require('socket.io');
 const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
+
+/**
+ * Verifies admin JWT from socket handshake cookies.
+ * Returns the decoded payload if valid, null otherwise.
+ */
+function verifyAdminSocket(socket) {
+  try {
+    const cookieHeader = socket.handshake.headers.cookie || '';
+    const cookies = Object.fromEntries(
+      cookieHeader.split(';').map(c => {
+        const [k, ...v] = c.trim().split('=');
+        return [k, v.join('=')];
+      })
+    );
+    const token = cookies['admin_session'];
+    if (!token) return null;
+
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const [header, data, signature] = parts;
+    const secret = process.env.JWT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'mobilart-local-fallback-secret-key-2026';
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(`${header}.${data}`)
+      .digest('base64url');
+
+    const sigBuf = Buffer.from(signature, 'base64url');
+    const expectedBuf = Buffer.from(expectedSignature, 'base64url');
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) return null;
+
+    const payload = JSON.parse(Buffer.from(data, 'base64url').toString('utf8'));
+    if (Date.now() > payload.expiresAt) return null;
+
+    return payload;
+  } catch {
+    return null;
+  }
+}
 
 // Cliente Supabase server-side para el WebSocket
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -76,6 +116,15 @@ function initializeWebSockets(server) {
 
     // Lanzamiento de encuesta desde el administrador
     socket.on('launch_survey', (data) => {
+      const admin = verifyAdminSocket(socket);
+      if (!admin) {
+        console.warn('⚠️ Intento no autorizado de lanzar encuesta desde:', socket.id);
+        return;
+      }
+      
+      // Validate duration (min 1 second, max 7 days)
+      const duration = Math.max(1, Math.min(604800, parseInt(data.duration) || 30));
+      
       console.log('🚀 Servidor recibió launch_survey:', data);
       if (surveyTimeout) {
         clearTimeout(surveyTimeout);
@@ -91,9 +140,9 @@ function initializeWebSockets(server) {
       surveyState.id = data.id || Math.random().toString(36).substring(2, 9);
       surveyState.question = data.question;
       surveyState.type = data.type;
-      surveyState.duration = data.duration;
+      surveyState.duration = duration;
       surveyState.options = data.options || [];
-      surveyState.endsAt = Date.now() + (data.duration * 1000);
+      surveyState.endsAt = Date.now() + (duration * 1000);
       surveyState.votes = {};
       surveyState.votedUsers = [];
 
@@ -114,7 +163,7 @@ function initializeWebSockets(server) {
         surveyState.active = false;
         io.emit('survey_ended', surveyState);
         surveyTimeout = null;
-      }, data.duration * 1000);
+      }, duration * 1000);
     });
 
     // Envío de voto del estudiante
@@ -136,6 +185,11 @@ function initializeWebSockets(server) {
 
     // Cierre manual de la encuesta por el docente
     socket.on('close_survey_manual', () => {
+      const admin = verifyAdminSocket(socket);
+      if (!admin) {
+        console.warn('⚠️ Intento no autorizado de cerrar encuesta desde:', socket.id);
+        return;
+      }
       console.log('🛑 Cierre manual de encuesta solicitado por el docente');
       if (surveyTimeout) {
         clearTimeout(surveyTimeout);
@@ -148,6 +202,11 @@ function initializeWebSockets(server) {
 
     // Control de acceso a Triviarte (habilitar/deshabilitar evaluación)
     socket.on('toggle_evaluacion', (data) => {
+      const admin = verifyAdminSocket(socket);
+      if (!admin) {
+        console.warn('⚠️ Intento no autorizado de toggle evaluación desde:', socket.id);
+        return;
+      }
       console.log('🔒 Toggle evaluación recibido:', data);
       io.emit('evaluacion_state_changed', {
         grupoId: data.grupoId,

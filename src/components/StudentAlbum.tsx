@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { getAudioContext } from '@/lib/audioUtils';
 
 export default function StudentAlbum() {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,9 +44,7 @@ export default function StudentAlbum() {
   const playBadgeChime = () => {
     if (typeof window === 'undefined') return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+      const ctx = getAudioContext();
       const now = ctx.currentTime;
       const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 (Bright arpeggio)
       notes.forEach((freq, idx) => {

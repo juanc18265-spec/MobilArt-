@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { getAudioContext } from '@/lib/audioUtils';
 
 /* ═══════════════════════════════════════════════
    Escenas del Video Cinematográfico (20s total)
@@ -43,10 +44,7 @@ const TRANSITION_DURATION = 800; // crossfade duration
    ═══════════════════════════════════════════════ */
 const playFlappingSound = () => {
   try {
-    const AudioContextClass = typeof window !== 'undefined' && 
-      ((window as any).AudioContext || (window as any).webkitAudioContext);
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
+    const ctx = getAudioContext();
     
     // 1. Sonido de Aleteo (Ruido Blanco Filtrado y Modulado)
     const bufferSize = ctx.sampleRate * 2.5; // Duración 2.5s

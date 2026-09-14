@@ -6,6 +6,7 @@ import DownloadPlaneacionPDF from "@/components/DownloadPlaneacionPDF";
 import StudentAlbum from "@/components/StudentAlbum";
 import InteractiveDove from "@/components/InteractiveDove";
 import { io } from 'socket.io-client';
+import { getAudioContext } from '@/lib/audioUtils';
 
 
 interface Resource { id: string; url: string; title?: string; }
@@ -641,9 +642,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
   const playSound = (type: 'correct' | 'incorrect' | 'triumph') => {
     if (typeof window === 'undefined') return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+      const ctx = getAudioContext();
       const now = ctx.currentTime;
 
       if (type === 'correct') {
@@ -707,9 +706,7 @@ export default function GrupoPage({ params }: { params: Promise<{ id: string }> 
   const playRhythmSound = (patternIdx: number) => {
     if (typeof window === 'undefined') return;
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
+      const ctx = getAudioContext();
       const now = ctx.currentTime;
 
       // Simple percussion generator: generates a drum-like sound at a specific time

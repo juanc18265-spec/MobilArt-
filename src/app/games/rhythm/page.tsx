@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { getAudioContext } from '@/lib/audioUtils';
 
 /* ═══ CAJA DE RESONANCIA ═══
    An ambient soundscape mixer. Generates continuous loops using Web Audio API
@@ -24,14 +25,14 @@ export default function RhythmPage() {
 
   useEffect(() => {
     return () => {
-      if (ctxRef.current) ctxRef.current.close();
+      // Context is reused
       Object.values(intervalRefs.current).forEach(clearInterval);
     };
   }, []);
 
   const initAudio = () => {
     if (ctxRef.current) return;
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
     ctxRef.current = ctx;
 
     // Create gain nodes for each track

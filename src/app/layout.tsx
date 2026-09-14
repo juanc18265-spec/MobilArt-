@@ -10,7 +10,7 @@ const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", weight:
 const instrumentSerif = Instrument_Serif({ subsets: ["latin"], variable: "--font-instrument", weight: ["400"], style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
-  title: "PROYECTO DE ARTES JOAN - MobilArt Studio",
+  title: "MobilArt para la Paz",
   description: "Plataforma educativa de regulación emocional a través del arte",
   manifest: "/manifest.json",
   appleWebApp: {

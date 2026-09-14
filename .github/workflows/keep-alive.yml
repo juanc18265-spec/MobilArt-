@@ -1,0 +1,17 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # Ping every 10 minutes to prevent Render free tier from sleeping
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping MobilArt on Render
+        run: |
+          echo "Pinging MobilArt..."
+          curl -sS -o /dev/null -w "HTTP Status: %{http_code}\n" https://mobilart.onrender.com || true
+          echo "Done!"

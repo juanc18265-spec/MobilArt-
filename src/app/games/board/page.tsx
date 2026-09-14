@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { getAudioContext } from '@/lib/audioUtils';
 
 /* ═══ MURAL COMUNITARIO (Simón) ═══ */
 
@@ -13,7 +14,7 @@ const PADS = [
 
 function playTone(freq: number, duration: number = 0.5) {
   try {
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
@@ -35,7 +36,7 @@ function playTone(freq: number, duration: number = 0.5) {
 
 function playErrorTone() {
   try {
-    const ctx = new AudioContext();
+    const ctx = getAudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0.1, ctx.currentTime);
