@@ -241,7 +241,7 @@ export default function PaintballPage() {
   }
 
   return (
-    <main className="fixed inset-0 bg-slate-900 touch-none select-none overflow-hidden cursor-crosshair" onPointerDown={handlePointerDown}>
+    <main className="fixed inset-0 bg-slate-900 touch-none select-none overflow-hidden cursor-crosshair" onPointerDown={handlePointerDown} aria-label="Juego de Paintball - usa el ratón o toca la pantalla para jugar" role="application">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       
       {/* HUD */}

@@ -175,6 +175,7 @@ export default function CatcherPage() {
       ref={containerRef}
       className="fixed inset-0 bg-[#faf8f5] touch-none select-none overflow-hidden" 
       onPointerMove={handlePointerMove}
+      aria-label="Juego Atrapa el Arte - usa el ratón o toca la pantalla para jugar" role="application"
     >
       <div className="absolute inset-0 bg-mesh-1 opacity-30 pointer-events-none" />
 

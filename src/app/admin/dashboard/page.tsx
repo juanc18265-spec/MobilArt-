@@ -1077,7 +1077,7 @@ export default function AdminDashboard() {
                         <button onClick={() => {
                           const newVids = [...group.videos]; newVids.splice(idx, 1);
                           handleUpdateGroup(group.id, { videos: newVids });
-                        }} className="bg-red-50 text-red-600 p-2 rounded-xl font-bold hover:bg-red-100 transition-colors">✕</button>
+                        }} className="bg-red-50 text-red-600 p-2 rounded-xl font-bold hover:bg-red-100 transition-colors" aria-label="Cerrar">✕</button>
                       </div>
                     ))
                   )}

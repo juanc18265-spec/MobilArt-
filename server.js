@@ -1,6 +1,16 @@
 const { loadEnvConfig } = require('@next/env');
 loadEnvConfig(process.cwd());
 
+// Validate required environment variables
+const requiredEnvVars = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+const missing = requiredEnvVars.filter(v => !process.env[v]);
+if (missing.length > 0) {
+  console.error('\n❌ Missing required environment variables:\n  ' + missing.join('\n  '));
+  console.error('\nSet them in .env.local or your deployment platform.\n');
+  process.exit(1);
+}
+console.log('✅ All required environment variables are set.');
+
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');

@@ -461,7 +461,7 @@ export default function Home() {
               <Link href="/grupos/primero" className="group block h-full">
                 <div className="card-organic p-8 hover:shadow-xl hover:border-teal-400 text-center flex flex-col h-full">
                   <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <span className="text-4xl">🌱</span>
+                    <span className="text-4xl" role="img" aria-label="brote">🌱</span>
                   </div>
                   <h3 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Outfit', 'DM Sans', sans-serif" }}>Grupo Primero</h3>
                   <p className="text-slate-600 font-medium flex-1">Ruta de iniciación. Conceptos básicos de color, emociones primarias y dinámicas de reconocimiento.</p>
@@ -476,7 +476,7 @@ export default function Home() {
               <Link href="/grupos/segundo" className="group block h-full">
                 <div className="card-organic p-8 hover:shadow-xl hover:border-blue-400 text-center flex flex-col h-full">
                   <div className="w-20 h-20 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <span className="text-4xl">🌿</span>
+                    <span className="text-4xl" role="img" aria-label="hierba">🌿</span>
                   </div>
                   <h3 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Outfit', 'DM Sans', sans-serif" }}>Grupo Segundo</h3>
                   <p className="text-slate-600 font-medium flex-1">Ruta de desarrollo. Expresión colectiva, empatía y resolución de conflictos a través del arte.</p>
@@ -491,7 +491,7 @@ export default function Home() {
               <Link href="/grupos/tercero" className="group block h-full">
                 <div className="card-organic p-8 hover:shadow-xl hover:border-indigo-400 text-center flex flex-col h-full">
                   <div className="w-20 h-20 mx-auto rounded-full bg-indigo-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <span className="text-4xl">🌳</span>
+                    <span className="text-4xl" role="img" aria-label="árbol">🌳</span>
                   </div>
                   <h3 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Outfit', 'DM Sans', sans-serif" }}>Grupo Tercero</h3>
                   <p className="text-slate-600 font-medium flex-1">Ruta de liderazgo. Proyectos murales, tejido social complejo y mentoría artística.</p>
@@ -506,7 +506,7 @@ export default function Home() {
               <Link href="/grupos/cuarto" className="group block h-full">
                 <div className="card-organic p-8 hover:shadow-xl hover:border-rose-400 text-center flex flex-col h-full">
                   <div className="w-20 h-20 mx-auto rounded-full bg-rose-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <span className="text-4xl">🎨</span>
+                    <span className="text-4xl" role="img" aria-label="paleta de pintor">🎨</span>
                   </div>
                   <h3 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Outfit', 'DM Sans', sans-serif" }}>Grupo Cuarto</h3>
                   <p className="text-slate-600 font-medium flex-1">Ruta de consolidación. Exploración de técnicas mixtas e identidades culturales diversas.</p>
@@ -521,7 +521,7 @@ export default function Home() {
               <Link href="/grupos/quinto" className="group block h-full">
                 <div className="card-organic p-8 hover:shadow-xl hover:border-amber-400 text-center flex flex-col h-full">
                   <div className="w-20 h-20 mx-auto rounded-full bg-amber-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <span className="text-4xl">🕊️</span>
+                    <span className="text-4xl" role="img" aria-label="paloma de la paz">🕊️</span>
                   </div>
                   <h3 className="text-3xl font-bold text-slate-900 mb-4" style={{ fontFamily: "'Outfit', 'DM Sans', sans-serif" }}>Grupo Quinto</h3>
                   <p className="text-slate-600 font-medium flex-1">Ruta de proyección. Desarrollo de portafolios de paz y gestión comunitaria mediante intervenciones.</p>
@@ -607,7 +607,7 @@ export default function Home() {
       {activeSurvey && isBannerVisible && (
         <div className="fixed top-28 left-0 right-0 z-[90] flex justify-center px-4 pointer-events-none select-none">
           <div className="anim-slide-down pointer-events-auto flex items-center gap-2 bg-slate-950 border border-slate-900 rounded-full shadow-[2px_2px_0_rgba(15,23,42,1)] py-2.5 px-4 text-white relative">
-            <span className="text-xs shrink-0">📢</span>
+            <span className="text-xs shrink-0" role="img" aria-label="megáfono">📢</span>
             
             <div className="cursor-pointer flex items-center gap-1.5 min-w-0" onClick={() => setShowSurveyOverlay(true)}>
               <span className="text-[10px] sm:text-xs font-black text-teal-400 uppercase tracking-wider shrink-0">Encuesta:</span>
@@ -619,6 +619,7 @@ export default function Home() {
             <button 
               onClick={() => setIsBannerVisible(false)}
               className="text-slate-400 hover:text-white font-black text-[10px] sm:text-xs hover:scale-110 active:scale-95 transition-all p-0.5 cursor-pointer shrink-0 border-l border-slate-800 pl-1.5 ml-0.5"
+              aria-label="Cerrar"
               title="Ocultar"
             >
               ✕
@@ -634,6 +635,8 @@ export default function Home() {
               <button
                 onClick={() => setShowSurveyOverlay(false)}
                 className="absolute top-4 right-4 bg-slate-900 text-white hover:bg-slate-800 rounded-full w-8 h-8 flex items-center justify-center font-bold border-2 border-white cursor-pointer active:scale-90 transition-all text-xs"
+                aria-label="Cerrar"
+                title="Ocultar"
               >
                 ✕
               </button>
@@ -647,7 +650,7 @@ export default function Home() {
 
             <div className="p-6 space-y-6">
               <div className="text-center space-y-2">
-                <span className="text-3xl animate-pulse block">💬</span>
+                <span className="text-3xl animate-pulse block" role="img" aria-label="bocadillo de diálogo">💬</span>
                 <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
                   {activeSurvey.question}
                 </h3>
@@ -685,7 +688,7 @@ export default function Home() {
               ) : (
                 <div className="space-y-5">
                   <div className="text-center py-4 bg-emerald-50 border-2 border-emerald-300 rounded-2xl">
-                    <span className="text-3xl block animate-bounce mb-1.5">✨</span>
+                    <span className="text-3xl block animate-bounce mb-1.5" role="img" aria-label="destellos">✨</span>
                     <p className="font-black text-emerald-800 text-sm">¡Tu voto ha sido registrado!</p>
                     <p className="text-xs text-emerald-600 font-semibold mt-0.5">Votaste por: <strong className="text-emerald-900">{selectedVote}</strong></p>
                   </div>

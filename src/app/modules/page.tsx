@@ -135,6 +135,8 @@ export default function ModulesPage() {
               {current.sections.map((sec, i) => (
                 <div key={i} className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm transition-all hover:shadow-md">
                   <button onClick={() => setOpenSection(openSection === i ? null : i)}
+                    aria-expanded={openSection === i}
+                    aria-controls={`section-${i}`}
                     className="w-full text-left px-6 py-5 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-5">
                       <span className="text-sm font-bold bg-slate-100 w-8 h-8 flex items-center justify-center rounded-full" style={{ color: current.color }}>{i + 1}</span>
@@ -143,7 +145,7 @@ export default function ModulesPage() {
                     <svg className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${openSection === i ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {openSection === i && (
-                    <div className="px-6 pb-6 animate-fade-in bg-white">
+                    <div id={`section-${i}`} role="region" className="px-6 pb-6 animate-fade-in bg-white">
                       <div className="border-t border-slate-100 pt-5">
                         <p className="text-base text-slate-600 leading-relaxed font-medium">{sec.content}</p>
                       </div>
