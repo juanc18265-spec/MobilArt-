@@ -19,6 +19,6 @@ jobs:
         run: |
           echo "Pinging Supabase to keep project active..."
           curl -sS -o /dev/null -w "HTTP Status: %{http_code}\n" \
-            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVncmFibGJxd3JrZHVleHBpc2ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MzkyMTEsImV4cCI6MjA5NjExNTIxMX0.BfaIhGYD6HBS10lzPqkHrKLYYEClx4DG-MJcM1WcwF0" \
             "https://ugrablbqwrkduexpisfg.supabase.co/rest/v1/app_settings?select=key&limit=1" || true
           echo "Done!"
