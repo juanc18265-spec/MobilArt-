@@ -1,4 +1,4 @@
-name: Keep Render Alive
+name: Keep Alive (Render + Supabase)
 
 on:
   schedule:
@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Ping MobilArt on Render
         run: |
-          echo "Pinging MobilArt..."
+          echo "Pinging MobilArt on Render..."
           curl -sS -o /dev/null -w "HTTP Status: %{http_code}\n" https://mobilart.onrender.com || true
+
+      - name: Ping Supabase (prevent project pause)
+        run: |
+          echo "Pinging Supabase to keep project active..."
+          curl -sS -o /dev/null -w "HTTP Status: %{http_code}\n" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "https://ugrablbqwrkduexpisfg.supabase.co/rest/v1/app_settings?select=key&limit=1" || true
           echo "Done!"
